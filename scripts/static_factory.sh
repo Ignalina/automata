@@ -1,6 +1,6 @@
 #!/bin/bash
 os_version=$1
-hostname_name=$2
+host_name=$2
 config_file=$3
 inject_script=$4
 
