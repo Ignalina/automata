@@ -1,4 +1,4 @@
-# hosts-automata
+# Automata
 Fire up hosts  on the fly to run your script and there was joy !  
 
 kvm_factory.sh and static_factory.sh takes the following parameters  
