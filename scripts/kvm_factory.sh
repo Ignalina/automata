@@ -1,0 +1,183 @@
+#!/bin/bash
+
+# CREDITS! Parts of this script are directly copied & inspired from from Earl C. Ruby III https://github.com/earlruby/create-vm
+
+
+VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
+
+declare -A imagefile
+imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/jammy-server-cloudimg-amd64.img
+imagefile[rocky_9_3]=${VM_IMAGE_DIR}/base/Rocky-9-GenericCloud.latest.x86_64.qcow2
+
+declare -A operator_groups
+operator_groups[ubuntu_22_04]=sudo
+operator_groups[rocky_9_3]=users,wheel,adm,systemd-journal
+
+
+declare -A post_command
+post_command[ubuntu_22_04]="echo  nop"
+post_command[rocky_9_3]="setenforce 0"
+
+
+function nuke_all_vm {
+
+virsh list --all --name | xargs -r -I % sh -c 'virsh shutdown %'
+sleep 30
+virsh list --state-shutoff --name | xargs -r  -I % sh -c 'virsh undefine --domain % --remove-all-storage --managed-save'
+sleep 10
+virsh list --all --name | xargs -r -I % sh -c 'virsh destroy %'
+virsh list --all --name | xargs -r -I % sh -c 'virsh undefine --domain % --remove-all-storage --managed-save'
+
+}
+
+function load_img_cache {
+ mkdir -p ~/vms/virsh/base
+ pushd ~/vms/virsh/base
+ wget -N http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+ wget -N https://download.rockylinux.org/pub/rocky/9.3/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2
+ popd
+}
+
+function get_vm_ip {
+ MAC=$(virsh domiflist $HOSTNAME | awk '{ print $5 }' | tail -2 | head -1)
+ arp -a | grep $MAC | awk '{ print $2 }' | sed 's/[()]//g'
+}
+
+function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+
+function create_node {
+ osversion=$1
+ HOSTNAME=$2
+ RAM=6144
+ VCPUS=4
+ IMG_FQN=${imagefile[$osversion]}
+ STORAGE=80
+ BRIDGE=virbr0
+
+
+ echo "proceding startup vm:s "
+ echo "OS=$osversion"
+ echo "CLOUD IMAGE FILE=${IMG_FQN}"
+
+
+ mkdir -p "$VM_IMAGE_DIR"/{images,xml,init,base}
+
+ echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
+ qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
+
+ echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
+ cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
+instance-id: ${HOSTNAME}
+local-hostname: ${HOSTNAME}
+EOF
+
+ echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
+ cat > "$VM_IMAGE_DIR/init/user-data" << EOF
+#cloud-config
+
+users:
+  - default
+  - name: ansible
+    selinux-user: staff_u
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    groups: ${operator_groups[$osversion]}
+    shell: /bin/bash
+    homedir: /var/ansible
+    ssh_pwauth: True
+    ssh_authorized_keys:
+EOF
+
+ key=$(< ~/.ssh/id_rsa.pub)
+ echo "     -" $key >> $VM_IMAGE_DIR/init/user-data 
+# echo "Adding keys from the public key file $AUTH_KEYS_FQN to the user-data file"
+# while IFS= read -r key; do
+#     echo "      - $key" >> "$VM_IMAGE_DIR/init/user-data"
+# done < <(grep -v '^ *#' < "$AUTH_KEYS_FQN")
+
+ cat >> "$VM_IMAGE_DIR/init/user-data" << EOF
+chpasswd:
+  list: |
+    root:password
+    ansible:ansible
+  expire: False
+ssh_pwauth: True
+runcmd:
+- ${post_command[$osversion]}
+EOF
+
+
+
+
+
+ echo "Generating the cidata ISO file $VM_IMAGE_DIR/images/${HOSTNAME}-cidata.iso"
+(
+    cd "$VM_IMAGE_DIR/init/"
+    genisoimage \
+        -output "$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img" \
+        -volid cidata \
+        -rational-rock \
+        -joliet \
+        user-data meta-data
+)
+
+ MACCMD=
+ if [[ -n $MAC ]]; then
+     MACCMD="--mac=${MAC}"
+ fi
+
+
+ virt-install \
+    --name="${HOSTNAME}" \
+    --network "bridge=${BRIDGE},model=virtio" $MACCMD \
+    --import \
+    --disk "path=${VM_IMAGE_DIR}/images/${HOSTNAME}.img,format=qcow2" \
+    --disk "path=$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img,device=cdrom" \
+    --ram="${RAM}" \
+    --vcpus="${VCPUS}" \
+    --autostart \
+    --hvm \
+    --arch x86_64 \
+    --accelerate \
+    --check-cpu \
+    --osinfo detect=on,require=off \
+    --force \
+    --watchdog=default \
+    --graphics vnc,listen=0.0.0.0 \
+    --noautoconsole \
+    --debug
+
+# Make a backup of the VM's XML definition file
+virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+
+}
+
+
+
+os_version=$1
+host_name=$2
+config_file=$3
+inject_script=$4
+
+source $config_file
+
+nuke_all_vm
+load_img_cache
+#while wait -n; do : ; done;
+
+virsh list --all
+
+create_node $os_version $host_name
+virsh list --all
+
+export target_ip=$(get_vm_ip ${host_name})
+echo "wait until network setup ready AND ssh server up "
+while ! [[ ${target_ip} ]]; do  sleep 1; done ;
+while ! ssh -o StrictHostKeyChecking=no ansible@$target_ip 'sleep 5'; do  sleep 5; done ;
+
+
+source $inject_script;
+
+
+#create-vm/delete-vm node1
+#nuke_all_vm
