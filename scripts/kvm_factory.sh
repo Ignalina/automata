@@ -171,7 +171,7 @@ create_node $os_version $host_name
 virsh list --all
 
 export target_ip=$(get_vm_ip ${host_name})
-echo "wait until network setup ready AND ssh server up "
+echo "wait until network setup ready AND ssh server up ${target_ip} "
 while ! [[ ${target_ip} ]]; do  sleep 1; done ;
 while ! ssh -o StrictHostKeyChecking=no ansible@$target_ip 'sleep 5'; do  sleep 5; done ;
 
