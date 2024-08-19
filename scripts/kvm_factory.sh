@@ -8,15 +8,18 @@ VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 declare -A imagefile
 imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/jammy-server-cloudimg-amd64.img
 imagefile[rocky_9_3]=${VM_IMAGE_DIR}/base/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[fedora_40]=${VM_IMAGE_DIR}/base/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
 
 declare -A operator_groups
 operator_groups[ubuntu_22_04]=sudo
 operator_groups[rocky_9_3]=users,wheel,adm,systemd-journal
+operator_groups[fedora_40]=users,wheel,adm,systemd-journal
 
 
 declare -A post_command
 post_command[ubuntu_22_04]="echo  nop"
 post_command[rocky_9_3]="setenforce 0"
+post_command[fedora_40]="setenforce 0"
 
 
 function nuke_all_vm {
@@ -35,6 +38,8 @@ function load_img_cache {
  pushd ~/vms/virsh/base
  wget -N http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
  wget -N https://download.rockylinux.org/pub/rocky/9.3/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2
+ wget -N https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+
  popd
 }
 
