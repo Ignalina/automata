@@ -6,21 +6,28 @@
 VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 
 declare -A imagefile
-imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/jammy-server-cloudimg-amd64.img
-imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/Rocky-9-GenericCloud.latest.x86_64.qcow2
-imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/Rocky-9-GenericCloud.latest.x86_64.qcow2
-imagefile[fedora_40]=${VM_IMAGE_DIR}/base/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu22.04/jammy-server-cloudimg-amd64.img
+imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu24.10/oracular-server-cloudimg-amd64.img
+imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky9.4/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[rocky_9_5]=${VM_IMAGE_DIR}/base/rocky9.5/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[fedora_40]=${VM_IMAGE_DIR}/base/fedora40/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+imagefile[fedora_41]=${VM_IMAGE_DIR}/base/fedora41/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2
 
 declare -A operator_groups
 operator_groups[ubuntu_22_04]=sudo
 operator_groups[rocky_9_4]=users,wheel,adm,systemd-journal
+operator_groups[rocky_9_4]=operator_groups[rocky_9_4]
+
 operator_groups[fedora_40]=users,wheel,adm,systemd-journal
+operator_groups[fedora_41]=operator_groups[fedora_40]
 
 
 declare -A post_command
 post_command[ubuntu_22_04]="echo  nop"
 post_command[rocky_9_4]="setenforce 0"
+post_command[rocky_9_5]=post_command[rocky_9_4]
 post_command[fedora_40]="setenforce 0"
+post_command[fedora_40]=post_command[fedora_41]
 
 
 function nuke_all_vm {
@@ -37,7 +44,9 @@ virsh list --all --name | xargs -r -I % sh -c 'virsh undefine --domain % --remov
 function load_img_cache {
  mkdir -p ~/vms/virsh/base
  pushd ~/vms/virsh/base
- wget -N http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+ mkdir -p ubuntu22.04;pushd ubuntu22.04;wget -N http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img; popd
+ mkdir -p ubuntu24.10;pushd ubuntu24.10;wget -N http://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img; popd
+ 
  mkdir -p rocky9.4;pushd rocky9.4; wget -N https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
  mkdir -p rocky9.5;pushd rocky9.5; wget -N https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
 
