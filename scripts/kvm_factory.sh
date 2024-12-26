@@ -8,6 +8,7 @@ VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 declare -A imagefile
 imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/jammy-server-cloudimg-amd64.img
 imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/Rocky-9-GenericCloud.latest.x86_64.qcow2
 imagefile[fedora_40]=${VM_IMAGE_DIR}/base/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
 
 declare -A operator_groups
@@ -37,8 +38,11 @@ function load_img_cache {
  mkdir -p ~/vms/virsh/base
  pushd ~/vms/virsh/base
  wget -N http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
- wget -N https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2
- wget -N https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+ mkdir -p rocky9.4;pushd rocky9.4; wget -N https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
+ mkdir -p rocky9.5;pushd rocky9.5; wget -N https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
+
+ mkdir -p rocky40; pushd 40;wget -N https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2;popd
+ mkdir -p rocky41; pushd 41;wget -N https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2;popd
 
  popd
 }
