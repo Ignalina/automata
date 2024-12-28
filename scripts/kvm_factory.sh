@@ -12,22 +12,25 @@ imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky9.4/Rocky-9-GenericCloud.latest.x
 imagefile[rocky_9_5]=${VM_IMAGE_DIR}/base/rocky9.5/Rocky-9-GenericCloud.latest.x86_64.qcow2
 imagefile[fedora_40]=${VM_IMAGE_DIR}/base/fedora40/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
 imagefile[fedora_41]=${VM_IMAGE_DIR}/base/fedora41/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2
+imagefile[alpine_3_21]=${VM_IMAGE_DIR}/base/alpine3.21/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2;
 
 declare -A operator_groups
 operator_groups[ubuntu_22_04]=sudo
 operator_groups[rocky_9_4]=users,wheel,adm,systemd-journal
-operator_groups[rocky_9_4]=operator_groups[rocky_9_4]
+operator_groups[rocky_9_4]=users,wheel,adm,systemd-journal
 
 operator_groups[fedora_40]=users,wheel,adm,systemd-journal
-operator_groups[fedora_41]=operator_groups[fedora_40]
+operator_groups[fedora_41]=users,wheel,adm,systemd-journal
+operator_groups[fedora_41]=sudo
 
 
 declare -A post_command
 post_command[ubuntu_22_04]="echo  nop"
 post_command[rocky_9_4]="setenforce 0"
-post_command[rocky_9_5]=post_command[rocky_9_4]
+post_command[rocky_9_5]="setenforce 0"
 post_command[fedora_40]="setenforce 0"
-post_command[fedora_40]=post_command[fedora_41]
+post_command[fedora_41]="setenforce 0"
+post_command[alpine_3_21]="echo nop"
 
 
 function nuke_all_vm {
@@ -50,9 +53,9 @@ function load_img_cache {
  mkdir -p rocky9.4;pushd rocky9.4; wget -N https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
  mkdir -p rocky9.5;pushd rocky9.5; wget -N https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
 
- mkdir -p rocky40; pushd 40;wget -N https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2;popd
- mkdir -p rocky41; pushd 41;wget -N https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2;popd
-
+ mkdir -p fedora40; pushd fedora40;wget -N https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2;popd
+ mkdir -p fedora41; pushd fedora41;wget -N https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2;popd
+ mkdir -p alpine3.21; pushd alpine3.21;wget -N https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/cloud/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2;popd
  popd
 }
 
