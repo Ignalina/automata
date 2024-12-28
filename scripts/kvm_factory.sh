@@ -6,13 +6,13 @@
 VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 
 declare -A imagefile
-imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu22.04/jammy-server-cloudimg-amd64.img
-imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu24.10/oracular-server-cloudimg-amd64.img
-imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky9.4/Rocky-9-GenericCloud.latest.x86_64.qcow2
-imagefile[rocky_9_5]=${VM_IMAGE_DIR}/base/rocky9.5/Rocky-9-GenericCloud.latest.x86_64.qcow2
-imagefile[fedora_40]=${VM_IMAGE_DIR}/base/fedora40/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
-imagefile[fedora_41]=${VM_IMAGE_DIR}/base/fedora41/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2
-imagefile[alpine_3_21]=${VM_IMAGE_DIR}/base/alpine3.21/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2;
+imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu_22_04/jammy-server-cloudimg-amd64.img
+imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu_24_10/oracular-server-cloudimg-amd64.img
+imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky_9_4/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[rocky_9_5]=${VM_IMAGE_DIR}/base/rocky_9_5/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[fedora_40]=${VM_IMAGE_DIR}/base/fedora_40/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+imagefile[fedora_41]=${VM_IMAGE_DIR}/base/fedora_41/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2
+imagefile[alpine_3_21]=${VM_IMAGE_DIR}/base/alpine_3_21/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2
 
 declare -A operator_groups
 operator_groups[ubuntu_22_04]=sudo
@@ -26,11 +26,21 @@ operator_groups[fedora_41]=sudo
 
 declare -A post_command
 post_command[ubuntu_22_04]="echo  nop"
+post_command[ubuntu_24_10]="echo  nop"
 post_command[rocky_9_4]="setenforce 0"
 post_command[rocky_9_5]="setenforce 0"
 post_command[fedora_40]="setenforce 0"
 post_command[fedora_41]="setenforce 0"
 post_command[alpine_3_21]="echo nop"
+
+declare -A image_cache
+image_cache[ubuntu_22_04]="http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
+image_cache[ubuntu_24_10]="http://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img"
+image_cache[rocky_9_4]="https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[rocky_9_5]="https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[fedora_40]="https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
+image_cache[fedora_41]="https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2"
+image_cache[alpine_3_21]="https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/cloud/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2"
 
 
 function nuke_all_vm {
@@ -45,17 +55,11 @@ virsh list --all --name | xargs -r -I % sh -c 'virsh undefine --domain % --remov
 }
 
 function load_img_cache {
+ echo blalblalbll=${image_cache[${osversion}]}
  mkdir -p ~/vms/virsh/base
  pushd ~/vms/virsh/base
- mkdir -p ubuntu22.04;pushd ubuntu22.04;wget -N http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img; popd
- mkdir -p ubuntu24.10;pushd ubuntu24.10;wget -N http://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img; popd
- 
- mkdir -p rocky9.4;pushd rocky9.4; wget -N https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
- mkdir -p rocky9.5;pushd rocky9.5; wget -N https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2 ; popd
-
- mkdir -p fedora40; pushd fedora40;wget -N https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2;popd
- mkdir -p fedora41; pushd fedora41;wget -N https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2;popd
- mkdir -p alpine3.21; pushd alpine3.21;wget -N https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/cloud/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2;popd
+ osversion=$1
+ mkdir -p ${osversion};pushd ${osversion};wget -N ${image_cache[${osversion}]}; popd
  popd
 }
 
@@ -67,19 +71,17 @@ function get_vm_ip {
 function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 
-function create_node {
+function create_node_image {
  osversion=$1
  HOSTNAME=$2
- RAM=6144
- VCPUS=4
  IMG_FQN=${imagefile[$osversion]}
  STORAGE=80
- BRIDGE=virbr0
 
 
  echo "proceding startup vm:s "
  echo "OS=$osversion"
  echo "CLOUD IMAGE FILE=${IMG_FQN}"
+ load_img_cache ${osversion}
 
 
  mkdir -p "$VM_IMAGE_DIR"/{images,xml,init,base}
@@ -142,6 +144,16 @@ EOF
         user-data meta-data
 )
 
+
+}
+
+function install_node_image {
+ osversion=$1
+ HOSTNAME=$2
+ BRIDGE=virbr0
+ RAM=6144
+ VCPUS=4
+
  MACCMD=
  if [[ -n $MAC ]]; then
      MACCMD="--mac=${MAC}"
@@ -169,37 +181,42 @@ EOF
     --debug
 
 # Make a backup of the VM's XML definition file
-virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+ virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+
+# virsh list --all
+
+ echo "wait until network setup ready AND ssh server up for ${target_ip} "
+ while ! [[ $(get_vm_ip ${HOSTNAME}) ]]; do  sleep 1; done ;
+ export target_ip=$(get_vm_ip ${HOSTNAME})
+
+ while ! ssh -o StrictHostKeyChecking=no ansible@$target_ip 'sleep 5'; do  sleep 5; done ;
 
 }
 
 
 
 os_version=$1
-host_name=$2
-config_file=$3
-inject_script=$4
+machines=$2
+host_name=$3
 
+config_file=$4
+inject_script=$5
+
+# TODO must be multiple files ??...
 source $config_file
 
 nuke_all_vm
-load_img_cache
-#while wait -n; do : ; done;
-
 virsh list --all
 
-create_node $os_version $host_name
-virsh list --all
-
-echo "wait until network setup ready AND ssh server up for ${target_ip} "
-while ! [[ $(get_vm_ip ${host_name}) ]]; do  sleep 1; done ;
-export target_ip=$(get_vm_ip ${host_name})
-
-while ! ssh -o StrictHostKeyChecking=no ansible@$target_ip 'sleep 5'; do  sleep 5; done ;
+for (( i=1; i<${machines}; ++i)); do
+    create_node_image $os_version machine${i}.${host_name}
+done
 
 
-source $inject_script;
+for (( i=1; i<${machines}; ++i)); do
+    install_node_image $os_version machine${i}.${host_name} &
+done
 
 
-#create-vm/delete-vm node1
-#nuke_all_vm
+# TODO must be multiple files
+source $inject_script
