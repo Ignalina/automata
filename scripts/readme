@@ -2,6 +2,8 @@ Injecting your script into a host.
 
 Variants on host lifecyle are 1)="fireup" or use 2)=existing:
 
-1) kvm_factory.sh create host specified ny os-type and hostname
+1) create host specified ny os-type and hostname
+kvm_factory.sh <os_version> <host_name> <config_file> <inject_script>
+
 2) static_factory.sh connect to existing hosts
 
