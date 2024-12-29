@@ -5,7 +5,9 @@ Create and maintain airgaped clusters for distributed software
 
 Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfish)  
   
-  
+
+# a quick test run on your local linux.
+
 0) airgap your target os media on an internet enabled server.
 **syntax** airgap_img.sh _osversion_
 For example , fedora_41 os
