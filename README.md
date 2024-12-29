@@ -11,7 +11,12 @@ For example , fedora_41 os
 ```bash
 airgap_media.sh fedora_41 
 ```
-For test run the rest of commands given below on same server. But for production you need transfer airgaped media files to non internet enabled machines.
+For a quick test continue with step nr 2 below on same server. But for production you need transfer airgaped media files to non internet enabled machines.
+
+ A future update needs to run the below command and again transfer the packages to non internet enabled machine/s
+```bash
+airgap_update.sh fedora_41 
+```
 
 2) Factory your media ,One iso for each node in cluster will be created
 
