@@ -16,11 +16,19 @@ iso_create.sh fedora_41 4 spark x14.se
 kvm_initate.sh <osversion> <nodes> <nodename> <domain>  
 redfish_initiate.sh <osversion> <nodes> <nodename> <domain>  
 
+```bash
+kvm_initiate.sh fedora_41 4 spark x14.se
+```
+
 
 3) Fire up your cluster by installing iso's on hosts  
 
 kvm_cluster.sh <osversion> <nodes> <nodename> <domain>   
 redfish_cluster.sh <osversion> <nodes> <nodename> <domain>  
+
+```bash
+kvm_cluster.sh fedora_41 4 spark x14.se
+```
 
 a small cluster json vill be created with IP'setc..  
 
