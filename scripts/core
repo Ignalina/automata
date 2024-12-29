@@ -59,9 +59,10 @@ function airgap_media {
 }
 
 # This one needs internet.
-function airgap_os_update {
+function airgap_update {
+ echo "NOT IMPLEMENTED YET"
  osversion=$1
- airgap_img ${osversion}
+# airgap_media ${osversion}
  
 # TODO implement
 # Start a kvm with the osversion image , inject an upgrade command that only downloading packages. 
