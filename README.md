@@ -1,7 +1,7 @@
 <img src="https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9" width="400" height="400">
 
 # Automata
-Create clusters for distributed software
+Create airgaped clusters for distributed software
 
 Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfish)
 
