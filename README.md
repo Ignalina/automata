@@ -21,7 +21,7 @@ For a quick test continue with step nr 2 below on same server. But for productio
 airgap_update.sh fedora_41 
 ```
 
-2) Factory your media ,One iso for each node in cluster will be created
+1) Factory your media ,One iso for each node in cluster will be created
 
 **syntax** iso_factory.sh _osversion_ _nodes_ _nodename_ _domain_  
 
