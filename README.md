@@ -6,7 +6,7 @@ Create and maintain airgaped clusters for distributed software
 Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfish)
 
 0) airgap your target os media on an internet enabled server.
-airgap_img.sh osversion
+**syntax** airgap_img.sh osversion_
 For example , fedora_41 os
 ```bash
 airgap_media.sh fedora_41 
@@ -20,7 +20,7 @@ airgap_update.sh fedora_41
 
 2) Factory your media ,One iso for each node in cluster will be created
 
-iso_factory.sh osversion nodes nodename domain  
+**syntax** iso_factory.sh osversion_ nodes_ nodename_ domain_  
 
 For example , to create 4 isos with hostnames {spark1.x14.se, spark2.x14.se, spark3.x14.se}  
 ```bash
@@ -28,7 +28,7 @@ iso_create.sh fedora_41 4 spark x14.se
 ```
 
 2) Initate your hosts   (DISCLAIMER WARNING WILL DESTROY / FORMAT / DELETE your hosts)  
-initate  osversion nodes nodename domain  
+**syntax** [kvm/redfish]_initate.sh  osversion_ nodes_ nodename_ domain_  
 
 using local kvm  
 ```bash
@@ -42,8 +42,8 @@ redfish_initiate.sh fedora_41 4 spark x14.se  {ip1,ip2,ip3,ip4}
 
 3) Fire up your cluster by installing iso's on hosts  
 
-kvm_cluster.sh <osversion> <nodes> <nodename> <domain>   
-redfish_cluster.sh <osversion> <nodes> <nodename> <domain>  
+**syntax** kvm_cluster.sh osversion_ nodes_ nodename_ domain_   
+**syntax** redfish_cluster.sh osversion_ nodes_ nodename_ domain_  {ip1,ip2,..}_
 
 ```bash
 kvm_cluster.sh fedora_41 4 spark x14.se
