@@ -46,6 +46,7 @@ redfish_initiate.sh fedora_41 4 spark x14.se  {ip1,ip2,ip3,ip4}
 **syntax** kvm_cluster.sh _osversion_ _nodes_ _nodename_ _domain_   
 **syntax** redfish_cluster.sh _osversion_ _nodes_ _nodename_ _domain_  {ip1,ip2,..}_
 
+For example to fire up fedora_41 cluster localy on kvm'ms
 ```bash
 kvm_cluster.sh fedora_41 4 spark x14.se
 ```
