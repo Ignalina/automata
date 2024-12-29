@@ -3,27 +3,27 @@ Create clusters for distributed software
 
 Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfish)
 
-1) Factory your media ,one for each node in cluster.
+1) Factory your media ,one for each node in cluster. 
 
-iso_factory.sh <osversion> <nodes> <nodename> <domain>
+iso_factory.sh <osversion> <nodes> <nodename> <domain> 
 
-For example , to create 4 isos with hostnames {spark1.x14.se, spark2.x14.se, spark3.x14.se}
-prompt>iso_create.sh fedora_41 4 spark x14.se
+For example , to create 4 isos with hostnames {spark1.x14.se, spark2.x14.se, spark3.x14.se} 
+prompt>iso_create.sh fedora_41 4 spark x14.se 
 
-2) Initate your hosts   (DISCLAIMER WARNING WILL DESTROY / FORMAT / DELETE your hosts)
-kvm_initate.sh <osversion> <nodes> <nodename> <domain>
-redfish_initiate.sh <osversion> <nodes> <nodename> <domain>
+2) Initate your hosts   (DISCLAIMER WARNING WILL DESTROY / FORMAT / DELETE your hosts)  
+kvm_initate.sh <osversion> <nodes> <nodename> <domain>  
+redfish_initiate.sh <osversion> <nodes> <nodename> <domain>  
 
 
-3) Fire up your cluster by installing iso's on hosts
+3) Fire up your cluster by installing iso's on hosts  
 
-kvm_cluster.sh <cluster.json> 
-redfish_cluster.sh <cluster.json>
+kvm_cluster.sh <cluster.json>  
+redfish_cluster.sh <cluster.json>  
 
-a small cluster json vill be created with IP'setc..
+a small cluster json vill be created with IP'setc..  
 
-4) Use your cluster 
-Its up and running and you have an cluster.json with ip's etc 
+4) Use your cluster  
+Its up and running and you have an cluster.json with ip's etc  
 
 
 
