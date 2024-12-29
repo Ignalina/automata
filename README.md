@@ -1,4 +1,4 @@
-<img src="https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9" width="200" height="200">
+<img src="https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9" width="400" height="400">
 
 # Automata
 Create clusters for distributed software
