@@ -17,8 +17,8 @@ redfish_initiate.sh <osversion> <nodes> <nodename> <domain>
 
 3) Fire up your cluster by installing iso's on hosts  
 
-kvm_cluster.sh <cluster.json>  
-redfish_cluster.sh <cluster.json>  
+kvm_cluster.sh <osversion> <nodes> <nodename> <domain>   
+redfish_cluster.sh <osversion> <nodes> <nodename> <domain> 
 
 a small cluster json vill be created with IP'setc..  
 
