@@ -45,4 +45,6 @@ Its up and running and you have an cluster.json with ip's etc
 To myself Rickard Ernst Björn Lundin on behalf of Swedish X14 AB and Danish Ignalina APS  
 KVM parts are partly copied and inspired from from Earl C. Ruby III https://github.com/earlruby/create-vm  
 
-https://en.wikipedia.org/wiki/Digesting_Duck#/media/File:Digesting_Duck.jpg
+# Wikipedia image of automata
+![image](https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9)
+
