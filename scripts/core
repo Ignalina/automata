@@ -68,29 +68,13 @@ function get_vm_ip {
 function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 
-function create_node_image {
+function create_node_iso {
  osversion=$1
  HOSTNAME=$2
  IMG_FQN=${imagefile[$osversion]}
- STORAGE=80
 
-
- echo "proceding startup vm:s "
- echo "OS=$osversion"
  echo "CLOUD IMAGE FILE=${IMG_FQN}"
  load_img_cache ${osversion}
-
-
- mkdir -p "$VM_IMAGE_DIR"/{images,xml,init,base}
-
- echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
- qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
-
- echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
- cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
-instance-id: ${HOSTNAME}
-local-hostname: ${HOSTNAME}
-EOF
 
  echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
  cat > "$VM_IMAGE_DIR/init/user-data" << EOF
@@ -140,6 +124,31 @@ EOF
         -joliet \
         user-data meta-data
 )
+
+
+}
+
+function create_kvm_node_image {
+ osversion=$1
+ HOSTNAME=$2
+ IMG_FQN=${imagefile[$osversion]}
+ STORAGE=80
+
+
+ echo "proceding startup vm:s "
+ echo "OS=$osversion"
+
+
+ mkdir -p "$VM_IMAGE_DIR"/{images,xml,init,base}
+
+ echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
+ qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
+
+ echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
+ cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
+instance-id: ${HOSTNAME}
+local-hostname: ${HOSTNAME}
+EOF
 
 
 }
