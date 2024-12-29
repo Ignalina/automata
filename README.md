@@ -1,3 +1,5 @@
+<img src="https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9" width="200" height="100">
+
 # Automata
 Create clusters for distributed software
 
@@ -44,7 +46,5 @@ Its up and running and you have an cluster.json with ip's etc
 # CREDITS!  
 To myself Rickard Ernst Björn Lundin on behalf of Swedish X14 AB and Danish Ignalina APS  
 KVM parts are partly copied and inspired from from Earl C. Ruby III https://github.com/earlruby/create-vm  
-
-# Wikipedia image of automata
-<img src="https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9" width="100" height="100">
+Wikipedia image of Automata  
 
