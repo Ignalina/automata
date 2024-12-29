@@ -46,5 +46,5 @@ To myself Rickard Ernst Björn Lundin on behalf of Swedish X14 AB and Danish Ign
 KVM parts are partly copied and inspired from from Earl C. Ruby III https://github.com/earlruby/create-vm  
 
 # Wikipedia image of automata
-![image](https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9)
+<img src="https://github.com/user-attachments/assets/d1918dcb-8de1-428e-87aa-7ff05ac45ab9" width="100" height="100">
 
