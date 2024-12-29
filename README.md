@@ -13,11 +13,15 @@ iso_create.sh fedora_41 4 spark x14.se
 ```
 
 2) Initate your hosts   (DISCLAIMER WARNING WILL DESTROY / FORMAT / DELETE your hosts)  
-kvm_initate.sh <osversion> <nodes> <nodename> <domain>  
-redfish_initiate.sh <osversion> <nodes> <nodename> <domain>  
+initate  osversion nodes nodename domain  
 
+using local kvm  
 ```bash
 kvm_initiate.sh fedora_41 4 spark x14.se
+```
+or redfish  where you must set ip1...ip4 to your hardwares BMC.  
+```bash
+redfish_initiate.sh fedora_41 4 spark x14.se  {ip1,ip2,ip3,ip4}
 ```
 
 
