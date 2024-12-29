@@ -18,10 +18,9 @@ declare -A operator_groups
 operator_groups[ubuntu_22_04]=sudo
 operator_groups[rocky_9_4]=users,wheel,adm,systemd-journal
 operator_groups[rocky_9_4]=users,wheel,adm,systemd-journal
-
 operator_groups[fedora_40]=users,wheel,adm,systemd-journal
 operator_groups[fedora_41]=users,wheel,adm,systemd-journal
-operator_groups[fedora_41]=sudo
+operator_groups[alpine_3_21]=wheel
 
 
 declare -A post_command
