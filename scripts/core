@@ -153,7 +153,7 @@ EOF
 
 }
 
-function install_node_image {
+function install_kvm_node_image {
  osversion=$1
  HOSTNAME=$2
  BRIDGE=virbr0

@@ -9,7 +9,7 @@ host_name=$3
 
 
 for (( i=1; i<${machines}; ++i)); do
-    install_node_image $os_version machine${i}.${host_name} &
+    install_kvm_node_image $os_version machine${i}.${host_name} &
 done
 
 
