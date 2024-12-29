@@ -44,5 +44,7 @@ Its up and running and you have an cluster.json with ip's etc
 # CREDITS!  
 To myself Rickard Ernst Björn Lundin on behalf of Swedish X14 AB and Danish Ignalina APS  
 KVM parts are partly copied and inspired from from Earl C. Ruby III https://github.com/earlruby/create-vm  
-![alt text]([(https://en.wikipedia.org/wiki/Digesting_Duck#/media/File:Digesting_Duck.jpg](https://en.wikipedia.org/wiki/Digesting_Duck#/media/File:Digesting_Duck.jpg))
+
+<img src="https://en.wikipedia.org/wiki/Digesting_Duck#/media/File:Digesting_Duck.jpg" width="128"/>
+
 
