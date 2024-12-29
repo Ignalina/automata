@@ -5,9 +5,17 @@ Create airgaped clusters for distributed software
 
 Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfish)
 
-1) Factory your media ,one for each node in cluster.  
+0) airgap your target os media on an internet enabled server.
+airgap_img.sh osversion
+For example , fedora_41 os
+```bash
+airgap_media.sh fedora_41 
+```
+For test run the rest of commands given below on same server. But for production you need transfer airgaped media files to non internet enabled machines.
 
-iso_factory.sh <osversion> <nodes> <nodename> <domain>  
+2) Factory your media ,One iso for each node in cluster will be created
+
+iso_factory.sh osversion nodes nodename domain  
 
 For example , to create 4 isos with hostnames {spark1.x14.se, spark2.x14.se, spark3.x14.se}  
 ```bash
