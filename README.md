@@ -9,7 +9,7 @@ iso_factory.sh <osversion> <nodes> <nodename> <domain>
 
 For example , to create 4 isos with hostnames {spark1.x14.se, spark2.x14.se, spark3.x14.se}  
 ```bash
-prompt>iso_create.sh fedora_41 4 spark x14.se
+iso_create.sh fedora_41 4 spark x14.se
 ```
 
 2) Initate your hosts   (DISCLAIMER WARNING WILL DESTROY / FORMAT / DELETE your hosts)  
