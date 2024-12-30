@@ -199,11 +199,12 @@ function install_kvm_node_image {
 # Make a backup of the VM's XML definition file
  virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
 
-# virsh list --all
 
  echo "wait until network setup ready AND ssh server up for ${target_ip} "
  while ! [[ $(get_vm_ip ${HOSTNAME}) ]]; do  sleep 1; done ;
  export target_ip=$(get_vm_ip ${HOSTNAME})
+
+ ssh-keygen -f ${HOME}/.ssh/known_hosts -R $(get_vm_ip ${HOSTNAME})
 
  while ! ssh -o StrictHostKeyChecking=no ansible@$target_ip 'sleep 5'; do  sleep 5; done ;
 
