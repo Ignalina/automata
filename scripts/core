@@ -79,7 +79,7 @@ function get_vm_ip {
 function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 
-function create_node_iso {
+function create_kvm_node_iso {
  osversion=$1
  HOSTNAME=$2
  IMG_FQN=${imagefile[$osversion]}
