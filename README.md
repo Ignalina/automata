@@ -8,7 +8,7 @@ Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfis
 
 # a quick test run on your local linux.
 ```bash
-airgap:media.sh fedora_41
+airgap_media.sh fedora_41
 iso_create.sh fedora_41 4 spark x14.se
 kvm_initiate.sh fedora_41 4 spark x14.se
 kvm_cluster.sh fedora_41 4 spark x14.se
