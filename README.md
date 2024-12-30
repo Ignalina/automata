@@ -7,6 +7,15 @@ Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfis
   
 
 # a quick test run on your local linux.
+```bash
+airgap:media.sh fedora_41
+iso_create.sh fedora_41 3 spark x14.se
+kvm_initiate.sh fedora_41 3 spark x14.se
+kvm_cluster.sh fedora_41 3 spark x14.se
+```
+you will se 3 small virtual machines fired up !
+
+# An explaination of the steps when you are in a less hurry.
 
 0) airgap your target os media on an internet enabled server.
 **syntax** airgap_img.sh _osversion_
