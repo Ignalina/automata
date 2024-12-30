@@ -9,11 +9,11 @@ Automata does this by Generate OS iso's and fire them up on hosts (kvm or redfis
 # a quick test run on your local linux.
 ```bash
 airgap:media.sh fedora_41
-iso_create.sh fedora_41 3 spark x14.se
-kvm_initiate.sh fedora_41 3 spark x14.se
-kvm_cluster.sh fedora_41 3 spark x14.se
+iso_create.sh fedora_41 4 spark x14.se
+kvm_initiate.sh fedora_41 4 spark x14.se
+kvm_cluster.sh fedora_41 4 spark x14.se
 ```
-you will se 3 small virtual machines fired up !
+you will se 4 small virtual machines fired up !
 
 # An explaination of the steps when you are in a less hurry.  
 
@@ -30,9 +30,9 @@ For a quick test continue with step nr 2 below on same server. But for productio
 airgap_update.sh fedora_41 
 ```
 
-1) Factory your media ,One iso for each node in cluster will be created
+1) Create your media ,One iso for each node in cluster will be created
 
-**syntax** iso_factory.sh _osversion_ _nodes_ _nodename_ _domain_  
+**syntax** iso_create.sh _osversion_ _nodes_ _nodename_ _domain_  
 
 For example , to create 4 isos with hostnames {spark1.x14.se, spark2.x14.se, spark3.x14.se}  
 ```bash
