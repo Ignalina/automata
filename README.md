@@ -15,9 +15,9 @@ kvm_cluster.sh fedora_41 3 spark x14.se
 ```
 you will se 3 small virtual machines fired up !
 
-# An explaination of the steps when you are in a less hurry.
+# An explaination of the steps when you are in a less hurry.  
 
-0) airgap your target os media on an internet enabled server.
+0) airgap your target os media on an internet enabled server.  
 **syntax** airgap_img.sh _osversion_
 For example , fedora_41 os
 ```bash
