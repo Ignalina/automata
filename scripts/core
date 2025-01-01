@@ -148,7 +148,7 @@ function create_kvm_node_image {
  STORAGE=80
 
 
- echo "proceding startup vm:s "
+ echo "proceding creating vm:s "
  echo "OS=$osversion"
 
 
