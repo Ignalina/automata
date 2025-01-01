@@ -85,6 +85,7 @@ function create_kvm_node_iso {
  IMG_FQN=${imagefile[$osversion]}
 
  echo "CLOUD IMAGE FILE=${IMG_FQN}"
+ mkdir -p "$VM_IMAGE_DIR"/{images,init}
 
  echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
  cat > "$VM_IMAGE_DIR/init/user-data" << EOF
@@ -120,9 +121,11 @@ runcmd:
 - ${post_command[$osversion]}
 EOF
 
-
-
-
+echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
+ cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
+instance-id: ${HOSTNAME}
+local-hostname: ${HOSTNAME}
+EOF
 
  echo "Generating the cidata ISO file $VM_IMAGE_DIR/images/${HOSTNAME}-cidata.iso"
 (
@@ -153,12 +156,6 @@ function create_kvm_node_image {
 
  echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
  qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
-
- echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
- cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
-instance-id: ${HOSTNAME}
-local-hostname: ${HOSTNAME}
-EOF
 
 
 }

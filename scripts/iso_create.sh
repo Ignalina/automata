@@ -2,7 +2,6 @@
 
 source core
 
-
 os_version=$1
 machines=$2
 
