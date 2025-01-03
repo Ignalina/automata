@@ -2,7 +2,7 @@ rm -rf ~/vms/virsh/images
 rm -rf ~/vms/virsh/xml
 rm -rf ~/vms/virsh/init
 
-os_version=rocky_9_5
+os_version=fedora_40
 
 ./airgap_media.sh ${os_version}
 ./iso_create.sh ${os_version} 5 spark x14.se
