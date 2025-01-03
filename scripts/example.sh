@@ -2,7 +2,9 @@ rm -rf ~/vms/virsh/images
 rm -rf ~/vms/virsh/xml
 rm -rf ~/vms/virsh/init
 
-./airgap_media.sh fedora_41
-./iso_create.sh fedora_41 5 spark x14.se
-./kvm_initiate.sh fedora_41 5 spark x14.se
-./kvm_cluster.sh fedora_41 5 spark x14.se
+os_version=rocky_9_5
+
+./airgap_media.sh ${os_version}
+./iso_create.sh ${os_version} 5 spark x14.se
+./kvm_initiate.sh ${os_version} 5 spark x14.se
+./kvm_cluster.sh ${os_version} 5 spark x14.se
