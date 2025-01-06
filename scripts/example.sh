@@ -1,6 +1,6 @@
-rm -rf ~/vms/virsh/images
-rm -rf ~/vms/virsh/xml
-rm -rf ~/vms/virsh/init
+#rm -rf ~/vms/virsh/images
+#rm -rf ~/vms/virsh/xml
+#rm -rf ~/vms/virsh/init
 
 os_version=fedora_40
 
