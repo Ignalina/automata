@@ -4,6 +4,8 @@
 
 os_version=fedora_40
 
+
+./kvm_nuke_all.sh ${os_version}
 ./airgap_media.sh ${os_version}
 ./iso_create.sh ${os_version} 5 spark x14.se
 ./kvm_initiate.sh ${os_version} 5 spark x14.se

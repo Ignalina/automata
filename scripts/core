@@ -91,8 +91,8 @@ function create_kvm_node_iso {
  echo "CLOUD IMAGE FILE=${IMG_FQN}"
  mkdir -p "$VM_IMAGE_DIR"/{images,init}
 
- echo "Creating user-data file $VM_IMAGE_DIR/init/${HOSTNAME}-user-data"
- cat > "$VM_IMAGE_DIR/init/${HOSTNAME}-user-data" << EOF
+ echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
+ cat > "$VM_IMAGE_DIR/init/user-data" << EOF
 #cloud-config
 
 users:
@@ -108,13 +108,13 @@ users:
 EOF
 
  key=$(< ~/.ssh/id_rsa.pub)
- echo "     -" $key >> $VM_IMAGE_DIR/init/${HOSTNAME}-user-data 
+ echo "     -" $key >> $VM_IMAGE_DIR/init/user-data 
 # echo "Adding keys from the public key file $AUTH_KEYS_FQN to the user-data file"
 # while IFS= read -r key; do
 #     echo "      - $key" >> "$VM_IMAGE_DIR/init/user-data"
 # done < <(grep -v '^ *#' < "$AUTH_KEYS_FQN")
 
- cat >> "$VM_IMAGE_DIR/init/${HOSTNAME}-user-data" << EOF
+ cat >> "$VM_IMAGE_DIR/init/user-data" << EOF
 chpasswd:
   list: |
     root:password
@@ -126,7 +126,7 @@ runcmd:
 EOF
 
 echo "Creating meta-data file $VM_IMAGE_DIR/init/${HOSTNAME}-meta-data"
- cat > "$VM_IMAGE_DIR/init/${HOSTNAME}-meta-data" << EOF
+ cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
 instance-id: ${HOSTNAME}
 local-hostname: ${HOSTNAME}
 EOF
@@ -139,7 +139,7 @@ EOF
         -volid cidata \
         -rational-rock \
         -joliet \
-        ${HOSTNAME}-user-data ${HOSTNAME}-meta-data
+        user-data meta-data
 )
 
 
