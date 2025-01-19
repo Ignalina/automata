@@ -2,7 +2,7 @@
 #rm -rf ~/vms/virsh/xml
 #rm -rf ~/vms/virsh/init
 
-os_version=fedora_40
+os_version=ubi_9_5
 
 
 ./kvm_nuke_all.sh ${os_version}
