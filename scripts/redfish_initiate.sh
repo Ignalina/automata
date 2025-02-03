@@ -10,7 +10,7 @@ bmcs=$4
 
 
 
-for (( i=1; i<${machines}; ++i)); do
+for (( i=1; i<=${machines}; ++i)); do
     create_redfish_node_image $os_version machine${i}.${host_name} ${bmcs}
 done
 

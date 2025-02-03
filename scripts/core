@@ -168,7 +168,7 @@ function install_kvm_node_image {
  osversion=$1
  HOSTNAME=$2
  BRIDGE=virbr0
- RAM=6144
+ RAM=10240
  VCPUS=4
 
  MACCMD=
