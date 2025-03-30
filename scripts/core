@@ -160,15 +160,33 @@ function create_kvm_node_image {
 
  echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
  qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
-
-
 }
+
+function create_redfish_node_image {
+ osversion=$1
+ HOSTNAME=$2
+ IMG_FQN=${imagefile[$osversion]}
+ STORAGE=80
+
+
+ echo "proceding creating vm:s "
+ echo "OS=$osversion"
+
+ bmc=$3
+ echo "boot ${bmc}"
+
+# mkdir -p "$VM_IMAGE_DIR"/{images,xml,init,base}
+
+# echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
+# qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
+}
+
 
 function install_kvm_node_image {
  osversion=$1
  HOSTNAME=$2
  BRIDGE=virbr0
- RAM=10240
+ RAM=8192
  VCPUS=4
 
  MACCMD=
