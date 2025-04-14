@@ -1,5 +1,8 @@
 import _socket
+import shutil
 import this
+from http import HTTPStatus
+from time import sleep
 
 import redfish
 import sys
@@ -19,34 +22,23 @@ class SingleFileHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
 
     def __init__(self, *args, **kwargs):
         self.file_to_serve = kwargs.pop('file_to_serve', None)  # Get the file from kwargs
+        self.protocol_version="HTTP/1.1"
         super().__init__(*args, **kwargs)
 
+    def _set_response(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/octet-stream')
+        self.send_header("Connection", "keep-alive")
+        self.send_header("keep-alive", "timeout=5, max=30")
+        self.end_headers()
 
-    def do_GET(self):
-        # Serve the specific file when the root is requested
-        print(self.path)
-        return super().do_GET()
 
+    def guess_type(self, path):
+        print("guessing type")
+        return 'application/octet-stream'
 
-    def do_HEAD(self):
-        # Serve the specific file when the root is requested
-        self.path = unquote(self.path)
+#  Defining main function
 
-        # Check if the requested file exists
-        filepath = self.translate_path(self.path)
-        if os.path.exists(filepath):
-            print(self.guess_type(self.path))
-            # Send a successful response with content length header
-            file_size = os.path.getsize(filepath)
-            self.send_response(200)
-            self.send_header('Content-type', self.guess_type(self.path))
-            self.send_header('Content-Length', str(file_size))
-            self.end_headers()
-            super().do_HEAD()
-        else:
-            # Send 404 Not Found if file doesn't exist
-            self.send_error(404, "File not found")
-# Defining main function
 def start_httpd_server(host_ip, port, file_to_serve):
     handler = lambda *args, **kwargs: SingleFileHTTPRequestHandler(*args, file_to_serve=file_to_serve, **kwargs)
 
@@ -103,6 +95,7 @@ def main():
     # Create the payload for the InsertMediaActionInfo resource
     insert_media_payload = {
     "Image": iso_url,  # URL of the ISO image
+#    "Image": "http://10.1.1.13:8081/Rocky-9.5-x86_64-minimal.iso",  # URL of the ISO image
 #    "MediaTypes": ["DVD"],  # The media type is DVD
     "Inserted": True,  # Indicates that the media should be inserted (mounted)
     "WriteProtected": True , # Specify whether the media should be write-protected
@@ -119,17 +112,8 @@ def main():
         print("Failed to populate InsertMediaActionInfo:", response.status, response.text)
         exit(1)
 
-# Step 3: Perform the InsertMedia action to mount the ISO
-# URL for the InsertMedia action
-    insert_media_action_url = "/redfish/v1/Managers/1/VirtualMedia/VirtualMedia1/Actions/VirtualMedia.InsertMedia"
 
-# Send POST request to trigger the InsertMedia action
-    response = redfish_client.post(insert_media_action_url)
-    if response.status == 200:
-        print("Virtual media (DVD ISO) mounted successfully.")
-    else:
-        print("Failed to mount virtual media:", response.status, response.text)
-#        exit(1)
+    sleep(10000)
     # Step 3: Set Boot Order to Virtual Media
     boot_url = f"/redfish/v1/Systems/{system_id}"
     boot_payload = {
