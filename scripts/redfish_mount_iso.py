@@ -1,57 +1,37 @@
-import _socket
-import shutil
-import this
-from http import HTTPStatus
+
 from time import sleep
 
 import redfish
 import sys
-import json
-import http.server
-import socketserver
-import os
+from http.server import HTTPServer
 import socket
 import threading
 import time
-import os
-import ssl
-from http.server import SimpleHTTPRequestHandler, HTTPServer
-from urllib.parse import unquote
-
-class SingleFileHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
-
-    def __init__(self, *args, **kwargs):
-        self.file_to_serve = kwargs.pop('file_to_serve', None)  # Get the file from kwargs
-        self.protocol_version="HTTP/1.1"
-        super().__init__(*args, **kwargs)
-
-    def _set_response(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/octet-stream')
-        self.send_header("Connection", "keep-alive")
-        self.send_header("keep-alive", "timeout=5, max=30")
-        self.end_headers()
-
-
-    def guess_type(self, path):
-        print("guessing type")
-        return 'application/octet-stream'
-
-#  Defining main function
-
-def start_httpd_server(host_ip, port, file_to_serve):
-    handler = lambda *args, **kwargs: SingleFileHTTPRequestHandler(*args, file_to_serve=file_to_serve, **kwargs)
-
-    # Create and start the server on the host's local IP address
-    with socketserver.TCPServer((host_ip, port), handler) as httpd:
-        print(f"Serving {file_to_serve} on {host_ip}:{port}...")
-        httpd.serve_forever()
+from RangeHTTPServer import RangeRequestHandler
+from pathlib import Path
 
 def start_server_in_thread(host_ip, port, file_to_serve):
-    server_thread = threading.Thread(target=start_httpd_server, args=(host_ip, port, file_to_serve,))
-    server_thread.daemon = True  # Daemonize the thread to make it terminate with the main program
+    def start_server():
+        global httpd
+        RangeRequestHandler.protocol_version = 'HTTP/1.1'
+        p = Path(file_to_serve)
+        RangeRequestHandler.directory=Path(file_to_serve).parent.resolve()
+        httpd = HTTPServer((f'{host_ip}', port), RangeRequestHandler)
+        httpd.serve_forever()
+
+    server_thread = threading.Thread(target=start_server)
     server_thread.start()
-    return server_thread
+    time.sleep(1.0)
+    return httpd,server_thread
+
+def start_server(file_to_serve,port):
+     global httpd
+     RangeRequestHandler.protocol_version = 'HTTP/1.1'
+     p = Path(file_to_serve)
+     RangeRequestHandler.directory=file_to_serve
+     httpd = HTTPServer(('', port), RangeRequestHandler)
+     httpd.serve_forever()
+
 
 def main():
 
@@ -69,7 +49,8 @@ def main():
         hostname, port = sys.argv[5].split(":")
 
     host_ip = socket.gethostbyname(hostname)
-    start_server_in_thread(host_ip,port,file_to_serve)
+    httpd,server_thread=start_server_in_thread(host_ip,port,file_to_serve)
+
 
     iso_url = f"http://{ host_ip }:{port}/{file_to_serve}"  # Replace this with the actual ISO URL
     manager_id = "1"
@@ -113,7 +94,9 @@ def main():
         exit(1)
 
 
-    sleep(10000)
+    sleep(1000)
+
+
     # Step 3: Set Boot Order to Virtual Media
     boot_url = f"/redfish/v1/Systems/{system_id}"
     boot_payload = {
@@ -142,6 +125,10 @@ def main():
     response = redfish_client.post(reset_url, body=reset_payload)
     if response.status == 200:
         print("System rebooted successfully.")
+
+
+    httpd.shutdown()
+    server_thread.join()
 
     redfish_client.logout()
 
