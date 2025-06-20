@@ -35,8 +35,8 @@ declare -A image_cache
 image_cache[ubuntu_22_04]="http://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
 image_cache[ubuntu_24_10]="http://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img"
 image_cache[rocky_9_4]="https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
-image_cache[rocky_9_5]="https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
-image_cache[ubi_9_5]="https://download.rockylinux.org/pub/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[rocky_9_5]="https://dl.rockylinux.org/vault/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[ubi_9_5]="https://dl.rockylinux.org/vault/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
 image_cache[fedora_40]="https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
 image_cache[fedora_41]="https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2"
 image_cache[alpine_3_21]="https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/cloud/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2"
@@ -55,10 +55,11 @@ virsh list --all --name | xargs -r -I % sh -c 'virsh undefine --domain % --remov
 
 # This one needs internet.
 function airgap_media {
- mkdir -p ~/vms/virsh/base
- pushd ~/vms/virsh/base
  osversion=$1
- mkdir -p ${osversion};pushd ${osversion};wget -N ${image_cache[${osversion}]}; popd
+
+ mkdir -p $(dirname ${imagefile[$osversion]})
+ pushd $(dirname ${imagefile[$osversion]})
+ wget -N ${image_cache[${osversion}]}
  popd
 }
 
