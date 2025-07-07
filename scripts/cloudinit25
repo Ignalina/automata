@@ -53,10 +53,12 @@ function create_kvm_node_iso {
  cat > "$VM_IMAGE_DIR/init/user-data" << EOF
 #cloud-config
 
+#     selinux_user: staff_u  <---- only allowed for selinux enabled os
+
+
 users:
   - default
   - name: ansible
-    selinux_user: staff_u
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
     groups: [${operator_groups[$osversion]}]
     shell: /bin/bash
