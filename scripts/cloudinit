@@ -2,7 +2,6 @@
 
 VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 
-echo $PUBLIC_KEY
 declare -A imagefile
 imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu_22_04/jammy-server-cloudimg-amd64.img
 imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky_9_4/Rocky-9-GenericCloud.latest.x86_64.qcow2

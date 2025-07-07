@@ -1,9 +1,7 @@
 
 
 VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
-PUBLIC_KEY= ${PUBLIC_KEY:- $(< ~/.ssh/id_rsa.pub)}
 
-echo $PUBLIC_KEY
 declare -A imagefile
 imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu_24_10/oracular-server-cloudimg-amd64.img
 imagefile[ubuntu_24_04]=${VM_IMAGE_DIR}/base/ubuntu_24_04/noble-server-cloudimg-amd64.img
@@ -58,12 +56,11 @@ function create_kvm_node_iso {
 users:
   - default
   - name: ansible
-    selinux-user: staff_u
+    selinux_user: staff_u
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
-    groups: ${operator_groups[$osversion]}
+    groups: [${operator_groups[$osversion]}]
     shell: /bin/bash
     homedir: /var/ansible
-    ssh_pwauth: True
     ssh_authorized_keys:
 EOF
 
@@ -71,11 +68,16 @@ EOF
 
  cat >> "$VM_IMAGE_DIR/init/user-data" << EOF
 chpasswd:
-  list: |
-    root:password
-    ansible:ansible
-  expire: False
-ssh_pwauth: True
+  expire: false
+  users:
+    - name: root
+      password: password
+      type: text
+    - name: ansible
+      password: ansbile
+      type: text
+
+ssh_pwauth: true
 runcmd:
 - ${post_command[$osversion]}
 EOF
