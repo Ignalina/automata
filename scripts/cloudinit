@@ -5,8 +5,6 @@ VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 echo $PUBLIC_KEY
 declare -A imagefile
 imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu_22_04/jammy-server-cloudimg-amd64.img
-imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu_24_10/oracular-server-cloudimg-amd64.img
-imagefile[ubuntu_24_04]=${VM_IMAGE_DIR}/base/ubuntu_24_04/noble-server-cloudimg-amd64.img
 imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky_9_4/Rocky-9-GenericCloud.latest.x86_64.qcow2
 imagefile[rocky_9_5]=${VM_IMAGE_DIR}/base/rocky_9_5/Rocky-9-GenericCloud.latest.x86_64.qcow2
 imagefile[ubi_9_5]=${VM_IMAGE_DIR}/base/rocky_9_5/Rocky-9-GenericCloud.latest.x86_64.qcow2
@@ -17,8 +15,6 @@ imagefile[alpine_3_21]=${VM_IMAGE_DIR}/base/alpine_3_21/generic_alpine-3.21.0-x8
 
 declare -A image_cache
 image_cache[ubuntu_22_04]="https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
-image_cache[ubuntu_24_10]="https://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img"
-image_cache[ubuntu_24_04]="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
 image_cache[rocky_9_4]="https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
 image_cache[rocky_9_5]="https://dl.rockylinux.org/vault/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
 image_cache[ubi_9_5]="https://dl.rockylinux.org/vault/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
