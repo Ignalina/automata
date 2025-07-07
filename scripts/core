@@ -1,4 +1,5 @@
-VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
+#VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
+VM_IMAGE_DIR=${VM_IMAGE_DIR:-"/mnt/md0/vms/virsh"}
 
 declare -A imagefile
 imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu_22_04/jammy-server-cloudimg-amd64.img
@@ -161,6 +162,8 @@ function create_kvm_node_image {
 
  echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
  qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
+#  dirty fix for kvm manager
+ chmod -R o+rwx ${VM_IMAGE_DIR}/images
 }
 
 function create_redfish_node_image {
