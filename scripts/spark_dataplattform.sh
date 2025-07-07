@@ -2,7 +2,8 @@
 #rm -rf ~/vms/virsh/xml
 #rm -rf ~/vms/virsh/init
 
-os_version=ubi_9_5
+#os_version=ubi_9_5
+os_version=ubuntu_24_04
 
 
 ./kvm_nuke_all.sh ${os_version}
