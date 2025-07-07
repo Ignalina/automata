@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source core
-
+source redfish
 
 os_version=$1
 machines=$2

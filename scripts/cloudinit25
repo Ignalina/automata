@@ -1,0 +1,186 @@
+
+
+VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
+PUBLIC_KEY= ${PUBLIC_KEY:- $(< ~/.ssh/id_rsa.pub)}
+
+echo $PUBLIC_KEY
+declare -A imagefile
+imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu_22_04/jammy-server-cloudimg-amd64.img
+imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu_24_10/oracular-server-cloudimg-amd64.img
+imagefile[ubuntu_24_04]=${VM_IMAGE_DIR}/base/ubuntu_24_04/noble-server-cloudimg-amd64.img
+imagefile[rocky_9_4]=${VM_IMAGE_DIR}/base/rocky_9_4/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[rocky_9_5]=${VM_IMAGE_DIR}/base/rocky_9_5/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[ubi_9_5]=${VM_IMAGE_DIR}/base/rocky_9_5/Rocky-9-GenericCloud.latest.x86_64.qcow2
+imagefile[fedora_40]=${VM_IMAGE_DIR}/base/fedora_40/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2
+imagefile[fedora_41]=${VM_IMAGE_DIR}/base/fedora_41/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2
+imagefile[alpine_3_21]=${VM_IMAGE_DIR}/base/alpine_3_21/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2
+
+
+declare -A image_cache
+image_cache[ubuntu_22_04]="https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
+image_cache[ubuntu_24_10]="https://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img"
+image_cache[ubuntu_24_04]="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+image_cache[rocky_9_4]="https://download.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[rocky_9_5]="https://dl.rockylinux.org/vault/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[ubi_9_5]="https://dl.rockylinux.org/vault/rocky/9.5/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+image_cache[fedora_40]="https://download.fedoraproject.org/pub/fedora/linux/releases/40/Cloud/x86_64/images/Fedora-Cloud-Base-Generic.x86_64-40-1.14.qcow2"
+image_cache[fedora_41]="https://mirror.accum.se/mirror/fedora/linux/releases/41/Cloud/x86_64/images/Fedora-Cloud-Base-Generic-41-1.4.x86_64.qcow2"
+image_cache[alpine_3_21]="https://dl-cdn.alpinelinux.org/alpine/v3.21/releases/cloud/generic_alpine-3.21.0-x86_64-bios-tiny-r0.qcow2"
+
+
+function nuke_all_vm {
+
+virsh list --all --name | xargs -r -I % sh -c 'virsh shutdown %'
+sleep 30
+virsh list --state-shutoff --name | xargs -r  -I % sh -c 'virsh undefine --domain % --remove-all-storage --managed-save'
+sleep 10
+virsh list --all --name | xargs -r -I % sh -c 'virsh destroy %'
+virsh list --all --name | xargs -r -I % sh -c 'virsh undefine --domain % --remove-all-storage --managed-save'
+
+}
+
+# This one needs internet.
+function airgap_media {
+ osversion=$1
+
+ mkdir -p $(dirname ${imagefile[$osversion]})
+ pushd $(dirname ${imagefile[$osversion]})
+ wget -N ${image_cache[${osversion}]}
+ popd
+}
+
+function get_vm_ip {
+ MAC=$(virsh domiflist $HOSTNAME | awk '{ print $5 }' | tail -2 | head -1)
+ arp -a | grep $MAC | awk '{ print $2 }' | sed 's/[()]//g'
+}
+
+function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
+
+
+function create_kvm_node_iso {
+ osversion=$1
+ HOSTNAME=$2
+ IMG_FQN=${imagefile[$osversion]}
+
+ echo "CLOUD IMAGE FILE=${IMG_FQN}"
+ mkdir -p "$VM_IMAGE_DIR"/{images,init}
+
+ echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
+ cat > "$VM_IMAGE_DIR/init/user-data" << EOF
+#cloud-config
+
+users:
+  - default
+  - name: ansible
+    selinux-user: staff_u
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    groups: ${operator_groups[$osversion]}
+    shell: /bin/bash
+    homedir: /var/ansible
+    ssh_pwauth: True
+    ssh_authorized_keys:
+EOF
+
+ echo "     -" $PUBLIC_KEY >> $VM_IMAGE_DIR/init/user-data 
+
+ cat >> "$VM_IMAGE_DIR/init/user-data" << EOF
+chpasswd:
+  list: |
+    root:password
+    ansible:ansible
+  expire: False
+ssh_pwauth: True
+runcmd:
+- ${post_command[$osversion]}
+EOF
+
+echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
+cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
+instance-id: ${HOSTNAME}
+local-hostname: ${HOSTNAME}
+EOF
+
+ echo "Generating the cidata ISO file $VM_IMAGE_DIR/images/${HOSTNAME}-cidata.iso"
+(
+    cd "$VM_IMAGE_DIR/init/"
+    genisoimage \
+        -output "$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img" \
+        -volid cidata \
+        -rational-rock \
+        -joliet \
+        user-data meta-data
+)
+
+
+}
+
+function create_kvm_node_image {
+ osversion=$1
+ HOSTNAME=$2
+ IMG_FQN=${imagefile[$osversion]}
+ STORAGE=80
+
+
+ echo "proceding creating vm:s "
+ echo "OS=$osversion"
+
+
+ mkdir -p "$VM_IMAGE_DIR"/{images,xml,init,base}
+
+ echo "Creating a qcow2 image file ${VM_IMAGE_DIR}/images/${HOSTNAME}.img that uses the cloud image file ${IMG_FQN} as its base"
+ qemu-img create -b "${IMG_FQN}" -f qcow2 -F qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}.img" "${STORAGE}G"
+#  dirty fix for kvm manager
+ chmod -R o+rwx ${VM_IMAGE_DIR}/images
+}
+
+
+function install_kvm_node_image {
+ osversion=$1
+ HOSTNAME=$2
+ BRIDGE=virbr0
+ RAM=8192
+ VCPUS=4
+
+ MACCMD=
+ if [[ -n $MAC ]]; then
+     MACCMD="--mac=${MAC}"
+ fi
+
+
+ virt-install \
+    --name="${HOSTNAME}" \
+    --network "bridge=${BRIDGE},model=virtio" $MACCMD \
+    --import \
+    --disk "path=${VM_IMAGE_DIR}/images/${HOSTNAME}.img,format=qcow2" \
+    --disk "path=$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img,device=cdrom" \
+    --ram="${RAM}" \
+    --vcpus="${VCPUS}" \
+    --autostart \
+    --hvm \
+    --arch x86_64 \
+    --accelerate \
+    --check-cpu \
+    --osinfo detect=on,require=off \
+    --force \
+    --watchdog=default \
+    --graphics vnc,listen=0.0.0.0 \
+    --noautoconsole \
+    --debug
+
+# Make a backup of the VM's XML definition file
+ virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+
+
+ echo "wait until network setup ready AND ssh server up for ${target_ip} "
+ while ! [[ $(get_vm_ip ${HOSTNAME}) ]]; do  sleep 1; done ;
+ export target_ip=$(get_vm_ip ${HOSTNAME})
+
+ ssh-keygen -f ${HOME}/.ssh/known_hosts -R $(get_vm_ip ${HOSTNAME})
+
+ while ! ssh -o StrictHostKeyChecking=no ansible@$target_ip 'sleep 5'; do  sleep 5; done ;
+
+}
+
+
+
+# CREDITS! Parts of this script are directly copied & inspired from from Earl C. Ruby III https://github.com/earlruby/create-vm

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 source core
-
+source $CLOUDINIT
 
 os_version=$1
 machines=$2

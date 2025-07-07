@@ -3,7 +3,7 @@
 #rm -rf ~/vms/virsh/init
 
 os_version=ubi_9_5
-
+export CLOUDINIT="cloudinit"
 
 ./kvm_nuke_all.sh ${os_version}
 ./airgap_media.sh ${os_version}
