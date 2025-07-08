@@ -1,7 +1,5 @@
 export VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 
-#PUBLIC_KEY_DEFAULT=$(< ~/.ssh/id_rsa.pub) 
-#export PUBLIC_KEY= ${PUBLIC_KEY:- $PUBLIC_KEY_DEFAULT}
 
 
 

@@ -3,7 +3,7 @@
 #rm -rf ~/vms/virsh/init
 
 #os_version=ubi_9_5
-os_version=ubuntu_24_04
+os_version=ubuntu_22_04
 export CLOUDINIT="cloudinit25"
 export PUBLIC_KEY=$(< ~/.ssh/id_ed25519.pub)
 export VM_IMAGE_DIR="/mnt/md0/vms/virsh"

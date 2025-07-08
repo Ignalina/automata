@@ -3,11 +3,13 @@
 VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
 
 declare -A imagefile
+imagefile[ubuntu_22_04]=${VM_IMAGE_DIR}/base/ubuntu_22_04/jammy-server-cloudimg-amd64.img
 imagefile[ubuntu_24_10]=${VM_IMAGE_DIR}/base/ubuntu_24_10/oracular-server-cloudimg-amd64.img
 imagefile[ubuntu_24_04]=${VM_IMAGE_DIR}/base/ubuntu_24_04/noble-server-cloudimg-amd64.img
 
 
 declare -A image_cache
+image_cache[ubuntu_22_04]="https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img"
 image_cache[ubuntu_24_10]="https://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img"
 image_cache[ubuntu_24_04]="https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
 
