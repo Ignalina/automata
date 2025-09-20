@@ -1,6 +1,4 @@
-export VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/vms/virsh"}
-
-
+export VM_IMAGE_DIR=${VM_IMAGE_DIR:-"${HOME}/automata/virsh"}
 
 
 declare -A operator_groups
@@ -8,7 +6,9 @@ operator_groups[ubuntu_22_04]=sudo
 operator_groups[ubuntu_24_04]=sudo
 operator_groups[rocky_9_4]=users,wheel,adm,systemd-journal
 operator_groups[rocky_9_5]=users,wheel,adm,systemd-journal
+operator_groups[rocky_9_6]=users,wheel,adm,systemd-journal
 operator_groups[ubi_9_5]=users,wheel,adm,systemd-journal
+operator_groups[ubi_9_6]=users,wheel,adm,systemd-journal
 operator_groups[fedora_40]=users,wheel,adm,systemd-journal
 operator_groups[fedora_41]=users,wheel,adm,systemd-journal
 operator_groups[alpine_3_21]=wheel
@@ -20,7 +20,9 @@ post_command[ubuntu_24_10]="sudo ufw disable;sudo ufw stop"
 post_command[ubuntu_24_04]="sudo ufw disable;sudo ufw stop"
 post_command[rocky_9_4]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
 post_command[rocky_9_5]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
+post_command[rocky_9_6]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
 post_command[ubi_9_5]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
+post_command[ubi_9_6]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
 post_command[fedora_40]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
 post_command[fedora_41]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
 post_command[alpine_3_21]="echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel"
