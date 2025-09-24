@@ -57,10 +57,10 @@ function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 function create_kvm_node_iso {
  osversion=$1
- HOSTNAME=$2
+ HOSTNAME="$2"
  IMG_FQN=${imagefile[$osversion]}
 
- echo "CLOUD IMAGE FILE=${IMG_FQN}"
+ echo "CLOUD IMAGE FILE=${IMG_FQN} HOSTNAME=${HOSTNAME}"
  mkdir -p "$VM_IMAGE_DIR"/{images,init}
 
  echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
@@ -72,7 +72,7 @@ users:
   - name: ansible
     selinux-user: staff_u
     sudo: ["ALL=(ALL) NOPASSWD:ALL"]
-    groups: ${operator_groups[$osversion]}
+    groups: [${operator_groups[$osversion]}]
     shell: /bin/bash
     homedir: /var/ansible
     ssh_pwauth: True
@@ -94,8 +94,8 @@ EOF
 
 echo "Creating meta-data file $VM_IMAGE_DIR/init/meta-data"
 cat > "$VM_IMAGE_DIR/init/meta-data" << EOF
-instance-id: ${HOSTNAME}
-local-hostname: ${HOSTNAME}
+instance-id: '${HOSTNAME}'
+local-hostname: '${HOSTNAME}'
 EOF
 
  echo "Generating the cidata ISO file $VM_IMAGE_DIR/images/${HOSTNAME}-cidata.iso"
@@ -114,7 +114,7 @@ EOF
 
 function create_kvm_node_image {
  osversion=$1
- HOSTNAME=$2
+ HOSTNAME="$2"
  IMG_FQN=${imagefile[$osversion]}
  STORAGE=80
 
@@ -134,10 +134,13 @@ function create_kvm_node_image {
 
 function install_kvm_node_image {
  osversion=$1
- HOSTNAME=$2
+ HOSTNAME="$2"
  BRIDGE=virbr0
  RAM=10240
  VCPUS=4
+
+
+ echo "ABOUT TO DO VIRTL INSTALL ON  HOSTNAME=${HOSTNAME}"
 
  MACCMD=
  if [[ -n $MAC ]]; then
