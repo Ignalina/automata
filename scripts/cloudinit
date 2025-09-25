@@ -151,17 +151,15 @@ function install_kvm_node_image {
 
 
 
-#EXTRA_DISKS=""
-#NVME_CONTROLLER=""
-#if [ -n "$NVME" ] && [ "$NVME" -gt 0 ]; then
-    # Add NVMe controller first
-
-#    for i in $(seq 1 "$NVME"); do
-#        EXTRA_DISKS+=" --disk path=${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2,size=2,format=qcow2,device=disk,controller=nvme0"
-#    done
-#fi
 
 
+# Assume NVME=2 for 2 NVMe disks
+NVME=${NVME:-0}
+
+# 1️⃣ Create NVMe disk files
+for i in $(seq 1 $NVME); do
+    qemu-img create -f qcow2 "${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2" 3G
+done
 
 
  virt-install\
@@ -172,22 +170,16 @@ function install_kvm_node_image {
     --disk "path=$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img,device=cdrom"\
     --ram="${RAM}"\
     --vcpus="${VCPUS}"\
-    --autostart\
-    --hvm\
     --arch x86_64\
-    --accelerate\
-    --check-cpu\
     --osinfo detect=on,require=off\
-    --force\
-    --watchdog=default\
-    --graphics vnc,listen=0.0.0.0\
-    --noautoconsole\
-    --debug\
-    --channel unix,path=${VM_IMAGE_DIR}/images/${HOSTNAME}-org.qemu.guest_agent.0,target_type=virtio,name=org.qemu.guest_agent.0
+    --channel unix,path=${VM_IMAGE_DIR}/images/${HOSTNAME}-org.qemu.guest_agent.0,target_type=virtio,name=org.qemu.guest_agent.0\
+    --print-xml > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+
+add_nvme_to_xml "$HOSTNAME" "$NVME"
+virsh define "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+virsh start "${HOSTNAME}"
 
 
-# Make a backup of the VM's XML definition file
- virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
 
 
  echo "wait until network setup ready AND ssh server up for ${target_ip} "

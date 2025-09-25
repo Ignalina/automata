@@ -34,11 +34,45 @@ function airgap_update {
  echo "NOT IMPLEMENTED YET"
  osversion=$1
 # airgap_media ${osversion}
- 
+
 # TODO implement
-# Start a kvm with the osversion image , inject an upgrade command that only downloading packages. 
+# Start a kvm with the osversion image , inject an upgrade command that only downloading packages.
 # ubuntu apt install apt-offline  , check out https://askubuntu.com/questions/990350/ubuntu-software-installation-in-air-gapped-environments
 # debian yum -y install yum-utils  , check out https://www.bomzan.com/2023/02/22/patching-air-gapped-redhat-systems/
 }
 
+function add_nvme_to_xml() {
+    local HOSTNAME=$1
+    local NVME=${2:-0}   # number of NVMe disks
+    local XML_FILE="${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
 
+    if [ "$NVME" -le 0 ]; then
+        return
+    fi
+
+    # 1️⃣ Add NVMe controller
+    xmlstarlet ed -L \
+      -s "/domain/devices" -t elem -n controllerTMP -v "" \
+      -i "//controllerTMP" -t attr -n type -v nvme \
+      -i "//controllerTMP" -t attr -n model -v nvme \
+      -r "//controllerTMP" -v controller \
+      "$XML_FILE"
+
+    # 2️⃣ Add NVMe disks
+    for i in $(seq 1 $NVME); do
+        xmlstarlet ed -L \
+          -s "/domain/devices" -t elem -n diskTMP -v "" \
+          -i "//diskTMP" -t attr -n type -v file \
+          -i "//diskTMP" -t attr -n device -v disk \
+          -s "//diskTMP" -t elem -n driver -v "" \
+          -i "//diskTMP/driver" -t attr -n name -v qemu \
+          -i "//diskTMP/driver" -t attr -n type -v qcow2 \
+          -s "//diskTMP" -t elem -n source -v "" \
+          -i "//diskTMP/source" -t attr -n file -v "${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2" \
+          -s "//diskTMP" -t elem -n target -v "" \
+          -i "//diskTMP/target" -t attr -n dev -v "nvme0n${i}" \
+          -i "//diskTMP/target" -t attr -n bus -v nvme \
+          -r "//diskTMP" -v disk \
+          "$XML_FILE"
+    done
+}
