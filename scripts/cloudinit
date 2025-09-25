@@ -79,7 +79,7 @@ users:
     ssh_authorized_keys:
 EOF
 
- echo "     -" $PUBLIC_KEY >> $VM_IMAGE_DIR/init/user-data 
+ echo "     -" $PUBLIC_KEY >> $VM_IMAGE_DIR/init/user-data
 
  cat >> "$VM_IMAGE_DIR/init/user-data" << EOF
 chpasswd:
@@ -101,11 +101,11 @@ EOF
  echo "Generating the cidata ISO file $VM_IMAGE_DIR/images/${HOSTNAME}-cidata.iso"
 (
     cd "$VM_IMAGE_DIR/init/"
-    genisoimage \
-        -output "$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img" \
-        -volid cidata \
-        -rational-rock \
-        -joliet \
+    genisoimage\
+        -output "$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img"\
+        -volid cidata\
+        -rational-rock\
+        -joliet\
         user-data meta-data
 )
 
@@ -148,25 +148,43 @@ function install_kvm_node_image {
  fi
 
 
- virt-install \
-    --name="${HOSTNAME}" \
-    --network "bridge=${BRIDGE},model=virtio" $MACCMD \
-    --import \
-    --disk "path=${VM_IMAGE_DIR}/images/${HOSTNAME}.img,format=qcow2" \
-    --disk "path=$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img,device=cdrom" \
-    --ram="${RAM}" \
-    --vcpus="${VCPUS}" \
-    --autostart \
-    --hvm \
-    --arch x86_64 \
-    --accelerate \
-    --check-cpu \
-    --osinfo detect=on,require=off \
-    --force \
-    --watchdog=default \
-    --graphics vnc,listen=0.0.0.0 \
-    --noautoconsole \
-    --debug
+
+
+
+#EXTRA_DISKS=""
+#NVME_CONTROLLER=""
+#if [ -n "$NVME" ] && [ "$NVME" -gt 0 ]; then
+    # Add NVMe controller first
+
+#    for i in $(seq 1 "$NVME"); do
+#        EXTRA_DISKS+=" --disk path=${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2,size=2,format=qcow2,device=disk,controller=nvme0"
+#    done
+#fi
+
+
+
+
+ virt-install\
+    --name="${HOSTNAME}"\
+    --network "bridge=${BRIDGE},model=virtio" $MACCMD\
+    --import\
+    --disk "path=${VM_IMAGE_DIR}/images/${HOSTNAME}.img,format=qcow2"\
+    --disk "path=$VM_IMAGE_DIR/images/${HOSTNAME}-cidata.img,device=cdrom"\
+    --ram="${RAM}"\
+    --vcpus="${VCPUS}"\
+    --autostart\
+    --hvm\
+    --arch x86_64\
+    --accelerate\
+    --check-cpu\
+    --osinfo detect=on,require=off\
+    --force\
+    --watchdog=default\
+    --graphics vnc,listen=0.0.0.0\
+    --noautoconsole\
+    --debug\
+    --channel unix,path=${VM_IMAGE_DIR}/images/${HOSTNAME}-org.qemu.guest_agent.0,target_type=virtio,name=org.qemu.guest_agent.0
+
 
 # Make a backup of the VM's XML definition file
  virsh dumpxml "${HOSTNAME}" > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"

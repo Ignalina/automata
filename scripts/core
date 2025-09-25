@@ -15,17 +15,17 @@ operator_groups[alpine_3_21]=wheel
 
 
 declare -A post_command
-post_command[ubuntu_22_04]="sudo ufw disable;sudo ufw stop"
-post_command[ubuntu_24_10]="sudo ufw disable;sudo ufw stop"
-post_command[ubuntu_24_04]="sudo ufw disable;sudo ufw stop"
-post_command[rocky_9_4]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[rocky_9_5]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[rocky_9_6]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[ubi_9_5]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[ubi_9_6]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[fedora_40]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[fedora_41]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config"
-post_command[alpine_3_21]="echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel"
+post_command[ubuntu_22_04]="sudo ufw disable;sudo ufw stop;  sudo apt-get update -y; sudo apt-get install -y qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[ubuntu_24_10]="sudo ufw disable;sudo ufw stop; sudo apt-get update -y; sudo apt-get install -y qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[ubuntu_24_04]="sudo ufw disable;sudo ufw stop; sudo apt-get update -y; sudo apt-get install -y qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[rocky_9_4]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[rocky_9_5]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[rocky_9_6]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[ubi_9_5]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[ubi_9_6]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[fedora_40]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[fedora_41]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
+post_command[alpine_3_21]="echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel;sudo apk update; sudo apk add --no-cache qemu-guest-agent; sudo rc-update add qemu-guest-agent boot; sudo rc-service qemu-guest-agent start"
 
 
 
