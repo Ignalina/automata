@@ -41,38 +41,74 @@ function airgap_update {
 # debian yum -y install yum-utils  , check out https://www.bomzan.com/2023/02/22/patching-air-gapped-redhat-systems/
 }
 
-function add_nvme_to_xml() {
+# Inject NVMe drives via qemu:commandline
+function add_nvme_qemu_cmdlineOLD() {
     local HOSTNAME=$1
-    local NVME=${2:-0}   # number of NVMe disks
+    local NVME=${2:-0}
     local XML_FILE="${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
 
     if [ "$NVME" -le 0 ]; then
         return
     fi
 
-    # 1️⃣ Add NVMe controller
-    xmlstarlet ed -L \
-      -s "/domain/devices" -t elem -n controllerTMP -v "" \
-      -i "//controllerTMP" -t attr -n type -v nvme \
-      -i "//controllerTMP" -t attr -n model -v nvme \
-      -r "//controllerTMP" -v controller \
-      "$XML_FILE"
+    # create qemu:commandline root element if missing
+    if ! grep -q "<qemu:commandline" "$XML_FILE"; then
+        xmlstarlet ed -L \
+            -s "/domain/devices" -t elem -n qemuCMD -v "" \
+            -r "//qemuCMD" -v "qemu:commandline" \
+            -i "//qemu:commandline" -t attr -n 'xmlns:qemu' -v 'http://libvirt.org/schemas/domain/qemu/1.0' \
+            "$XML_FILE"
+    fi
 
-    # 2️⃣ Add NVMe disks
+    # add NVMe drives
     for i in $(seq 1 $NVME); do
         xmlstarlet ed -L \
-          -s "/domain/devices" -t elem -n diskTMP -v "" \
-          -i "//diskTMP" -t attr -n type -v file \
-          -i "//diskTMP" -t attr -n device -v disk \
-          -s "//diskTMP" -t elem -n driver -v "" \
-          -i "//diskTMP/driver" -t attr -n name -v qemu \
-          -i "//diskTMP/driver" -t attr -n type -v qcow2 \
-          -s "//diskTMP" -t elem -n source -v "" \
-          -i "//diskTMP/source" -t attr -n file -v "${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2" \
-          -s "//diskTMP" -t elem -n target -v "" \
-          -i "//diskTMP/target" -t attr -n dev -v "nvme0n${i}" \
-          -i "//diskTMP/target" -t attr -n bus -v nvme \
-          -r "//diskTMP" -v disk \
-          "$XML_FILE"
+            -s "//qemu:commandline" -t elem -n argTMP -v "-drive" \
+            -r "//argTMP" -v "qemu:arg" \
+            -i "//qemu:arg[last()]" -t attr -n value -v "file=${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2,format=qcow2,if=none,id=NVME${i}" \
+            "$XML_FILE"
+
+        xmlstarlet ed -L \
+            -s "//qemu:commandline" -t elem -n argTMP -v "-device" \
+            -r "//argTMP[last()]" -v "qemu:arg" \
+            -i "//qemu:arg[last()]" -t attr -n value -v "nvme,drive=NVME${i},serial=nvme-${i}" \
+            "$XML_FILE"
+    done
+}
+
+function add_nvme_qemu_cmdline() {
+    local HOSTNAME=$1
+    local NVME=${2:-0}
+    local XML_FILE="${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+
+    if [ "$NVME" -le 0 ]; then
+        return
+    fi
+
+    # Ensure <domain> tag has xmlns:qemu namespace
+    if ! grep -q "xmlns:qemu=" "$XML_FILE"; then
+        xmlstarlet ed -L \
+            -i "/domain" -t attr -n "xmlns:qemu" -v "http://libvirt.org/schemas/domain/qemu/1.0" \
+            "$XML_FILE"
+    fi
+
+    # Ensure <qemu:commandline> exists under <devices>
+    if ! grep -q "<qemu:commandline" "$XML_FILE"; then
+        xmlstarlet ed -L \
+            -s "/domain/devices" -t elem -n "qemu:commandline" -v "" \
+            "$XML_FILE"
+    fi
+
+    # Add NVMe drives
+    for i in $(seq 1 "$NVME"); do
+        xmlstarlet ed -L \
+            -s "//qemu:commandline" -t elem -n "qemu:arg" -v "" \
+            -i "//qemu:arg[last()]" -t attr -n "value" -v "-drive file=${VM_IMAGE_DIR}/images/${HOSTNAME}-nvme${i}.qcow2,format=qcow2,if=none,id=NVME${i}" \
+            "$XML_FILE"
+
+        xmlstarlet ed -L \
+            -s "//qemu:commandline" -t elem -n "qemu:arg" -v "" \
+            -i "//qemu:arg[last()]" -t attr -n "value" -v "-device nvme,drive=NVME${i},serial=nvme-${i}" \
+            "$XML_FILE"
     done
 }

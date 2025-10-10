@@ -11,7 +11,7 @@ machines=$3
 node_name=$4
 domain_name="$5"
 
-ECHO "DOMAIN NAME=${domain_name} START=${start} MACHINES=${machines} NODE_NAME={node_name}"
+echo "DOMAIN NAME=${domain_name} START=${start} MACHINES=${machines} NODE_NAME={node_name}"
 
 
 for (( i=${start}; i<=${machines}; ++i)); do
