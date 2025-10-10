@@ -54,6 +54,11 @@ function get_vm_ip {
 
 function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
+# Extract short hostname from a fully qualified domain name
+function sort_hostname() {
+    local fqdn="$1"
+    echo "${fqdn%%.*}"
+}
 
 function create_kvm_node_iso {
  osversion=$1
@@ -63,9 +68,15 @@ function create_kvm_node_iso {
  echo "CLOUD IMAGE FILE=${IMG_FQN} HOSTNAME=${HOSTNAME}"
  mkdir -p "$VM_IMAGE_DIR"/{images,init}
 
+ SHORT_HOSTNAME=$(sort_hostname "$HOSTNAME")
+
  echo "Creating user-data file $VM_IMAGE_DIR/init/user-data"
  cat > "$VM_IMAGE_DIR/init/user-data" << EOF
 #cloud-config
+hostname: ${SHORT_HOSTNAME}
+fqdn: ${HOSTNAME}
+manage_etc_hosts: true
+preserve_hostname: false
 
 users:
   - default
