@@ -27,7 +27,7 @@ virsh list --all --name | xargs -r -I % sh -c 'virsh undefine --domain % --remov
 
 # This one needs internet.
 function airgap_media {
- osversion=$1
+ osversion="$1"
 
  mkdir -p $(dirname ${imagefile[$osversion]})
  pushd $(dirname ${imagefile[$osversion]})
@@ -44,7 +44,7 @@ function beginswith() { case $2 in "$1"*) true;; *) false;; esac; }
 
 
 function create_kvm_node_iso {
- osversion=$1
+ osversion="$1"
  HOSTNAME="$2"
  IMG_FQN=${imagefile[$osversion]}
 
@@ -109,8 +109,8 @@ EOF
 }
 
 function create_kvm_node_image {
- osversion=$1
- HOSTNAME=$2
+ osversion="$1"
+ HOSTNAME="$2"
  IMG_FQN=${imagefile[$osversion]}
  STORAGE=80
 
@@ -129,8 +129,8 @@ function create_kvm_node_image {
 
 
 function install_kvm_node_image {
- osversion=$1
- HOSTNAME=$2
+ osversion="$1"
+ HOSTNAME="$2"
  BRIDGE=virbr0
  RAM=10240
  VCPUS=4
@@ -159,7 +159,7 @@ function install_kvm_node_image {
     --watchdog=default \
     --graphics vnc,listen=0.0.0.0 \
     --noautoconsole \
-    --debug
+    --debug \
     --channel unix,path=${VM_IMAGE_DIR}/images/${HOSTNAME}-org.qemu.guest_agent.0,target_type=virtio,name=org.qemu.guest_agent.0
 
 # Make a backup of the VM's XML definition file
