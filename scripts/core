@@ -27,6 +27,35 @@ post_command[fedora_40]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/sel
 post_command[fedora_41]="setenforce 0;sed -i 's/enforcing/permissive/g' /etc/selinux/config;sudo dnf -y makecache; sudo dnf -y install qemu-guest-agent; sudo systemctl enable --now qemu-guest-agent"
 post_command[alpine_3_21]="echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel;sudo apk update; sudo apk add --no-cache qemu-guest-agent; sudo rc-update add qemu-guest-agent boot; sudo rc-service qemu-guest-agent start"
 
+# Maps OS keys to virt-install --os-type
+declare -A OS_TYPE
+OS_TYPE[ubuntu_22_04]=linux
+OS_TYPE[ubuntu_24_04]=linux
+OS_TYPE[ubuntu_24_10]=linux
+OS_TYPE[rocky_9_4]=linux
+OS_TYPE[rocky_9_5]=linux
+OS_TYPE[rocky_9_6]=linux
+OS_TYPE[ubi_9_5]=linux
+OS_TYPE[ubi_9_6]=linux
+OS_TYPE[fedora_40]=linux
+OS_TYPE[fedora_41]=linux
+OS_TYPE[alpine_3_21]=linux
+
+# Maps OS keys to virt-install --os-variant
+declare -A OS_VARIANT
+OS_VARIANT[ubuntu_22_04]=ubuntu22.04
+OS_VARIANT[ubuntu_24_04]=ubuntu24.04
+OS_VARIANT[ubuntu_24_10]=ubuntu24.10
+OS_VARIANT[rocky_9_4]=rocky9.4
+OS_VARIANT[rocky_9_5]=rocky9.5
+OS_VARIANT[rocky_9_6]=rocky9.6
+OS_VARIANT[ubi_9_5]=ubi9.5
+OS_VARIANT[ubi_9_6]=ubi9.6
+OS_VARIANT[fedora_40]=fedora40
+OS_VARIANT[fedora_41]=fedora41
+OS_VARIANT[alpine_3_21]=alpine3.21
+
+
 
 
 # This one needs internet.
@@ -111,4 +140,14 @@ function add_nvme_qemu_cmdline() {
             -i "//qemu:arg[last()]" -t attr -n "value" -v "-device nvme,drive=NVME${i},serial=nvme-${i}" \
             "$XML_FILE"
     done
+}
+function set_vm_machine_q35() {
+    local HOSTNAME=$1
+    local XML_FILE="${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
+
+    # Ensure <os type="..."> has machine="pc-q35-questing" and arch="x86_64"
+    xmlstarlet ed -L \
+        -u "/domain/os/type/@machine" -v "pc-q35-questing" \
+        -u "/domain/os/type/@arch" -v "x86_64" \
+        "$XML_FILE"
 }

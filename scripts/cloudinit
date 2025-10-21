@@ -186,6 +186,7 @@ done
     --channel unix,path=${VM_IMAGE_DIR}/images/${HOSTNAME}-org.qemu.guest_agent.0,target_type=virtio,name=org.qemu.guest_agent.0\
     --print-xml > "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
 
+set_vm_machine_q35 "$HOSTNAME"
 add_nvme_qemu_cmdline "$HOSTNAME" "$NVME"
 
 virsh define "${VM_IMAGE_DIR}/xml/${HOSTNAME}.xml"
